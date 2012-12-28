@@ -9,94 +9,115 @@ import java.util.ArrayList;
 import javax.swing.JFileChooser;
 
 /**
- * @author admin DateiScanner für verzeichnisse
+ * @author admin dataScanner
  */
-public class Scanner {
+public class Scanner implements Runnable {
 
-  private final ArrayList<String> liste = new ArrayList<String>();
-  private String name;
+	/**
+	 * Main
+	 * 
+	 * @param args
+	 */
+	public static void main(final String[] args) {
 
-  /**
-   * Main
-   * 
-   * @param args
-   */
-  public static void main(final String[] args) {
+		new Scanner().scanFolder();
+		System.exit(0);
 
-    Scanner scanner = new Scanner();
-    scanner.dateinHolen();
-    scanner.saveIt();
+	}
 
-  }
+	/**
+	 * Holt alle dateinnamen aus einem Ordner
+	 */
+	public void scanFolder() {
 
-  /**
-   * Konstruktor
-   */
-  public Scanner() {
+		JFileChooser chooser = new JFileChooser();
+		chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 
-  }
+		int returnVal = chooser.showOpenDialog(chooser);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = chooser.getSelectedFile();
+			file.mkdir();
+			scanFolder(file, file.getName() + "/");
 
-  /**
-   * Holt alle dateinnamen aus einem Ordner
-   */
-  public void dateinHolen() {
+		} else {
+			System.exit(0);
+		}
 
-    JFileChooser chooser = new JFileChooser();
-    chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+	}
 
-    int returnVal = chooser.showOpenDialog(chooser);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-      File f = chooser.getSelectedFile();
-      name = f.getName();
-      String[] array = f.list();
-      for (String string : array) {
-        liste.add(string);
-      }
-    }
+	private void scanFolder(File file, String root) {
 
-  }
+		ArrayList<File> datalist = new ArrayList<File>();
+		ArrayList<File> folderlist = new ArrayList<File>();
 
-  /**
-   * Speichert den Index in einer txt;
-   */
-  public void saveIt() {
-    final int c = liste.size();
+		for (File f : file.listFiles()) {
+			if (f.isDirectory()) {
+				folderlist.add(f);
+			} else {
+				datalist.add(f);
+			}
+		}
 
-    if (c == 0) {
-      System.exit(0);
-    }
-    String endung = " Items.txt";
-    if (c == 1) {
-      endung = " Item.txt";
-    }
-    File file = new File("Index of " + name + " " + c + endung);
-    BufferedWriter writer = null;
+		for (File f : folderlist) {
+			String rootold = root;
+			root += f.getName();
+			saveIt(datalist, root);
+			scanFolder(f, root + "/");
+			root = rootold;
+		}
+		saveIt(datalist, root);
 
-    try {
-      writer = new BufferedWriter(new FileWriter(file));
+	}
 
-      for (String s : liste) {
-        writer.write(s);
-        writer.newLine();
-      }
+	/**
+	 * Speichert den Index in einer txt;
+	 */
+	public void saveIt(ArrayList<File> list, String root) {
+		File folder = new File(root);
+		String[] txtname = root.split("[//]+");
+		BufferedWriter writer = null;
 
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } finally {
-      if (writer != null) {
+		try {
+			Thread mkfolder = new Thread(this);
 
-        try {
-          writer.flush();
-          writer.close();
-        } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+			if (!folder.exists())
+				folder.mkdir();
 
-      }
+			if (list.isEmpty())
+				return;
 
-    }
+			writer = new BufferedWriter(new FileWriter(new File(
+					folder.getAbsolutePath() + "/"
+							+ txtname[txtname.length - 1] + ".txt")));
 
-  }
+			for (File f : list) {
+				writer.write(f.getName());
+				writer.newLine();
+			}
+
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} finally {
+			if (writer != null) {
+
+				try {
+					writer.flush();
+					writer.close();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			}
+
+		}
+
+	}
+
+	@Override
+	public void run() {
+		// TODO Auto-generated method stub
+
+	}
 }
