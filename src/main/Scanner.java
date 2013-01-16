@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.swing.JFileChooser;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 
 /**
  * @author admin dataScanner
@@ -100,6 +102,7 @@ public class Scanner {
 				} catch (InterruptedException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
+					dialog("Folder creation failed.");
 				}
 
 				if (list.isEmpty())
@@ -113,6 +116,7 @@ public class Scanner {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					dialog("The \".txt\" couldn't be created.");
 				}
 
 				for (File f : list) {
@@ -122,6 +126,7 @@ public class Scanner {
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
+						dialog("writing in txt failed");
 					}
 
 				}
@@ -131,6 +136,7 @@ public class Scanner {
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
+					dialog("txt creation failed");
 				}
 
 			}
@@ -140,4 +146,13 @@ public class Scanner {
 
 	}
 
+	/**
+	 * Shows errormessage
+	 * 
+	 * @param message
+	 */
+	private void dialog(String message) {
+		JOptionPane.showMessageDialog(new JFrame(), message, "Dialog",
+				JOptionPane.ERROR_MESSAGE);
+	}
 }
