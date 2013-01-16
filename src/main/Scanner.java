@@ -14,7 +14,7 @@ import javax.swing.JFileChooser;
 public class Scanner {
 
 	/**
-	 * Main
+	 * Main methode starts the Scanner and calls the scanFolder Methode
 	 * 
 	 * @param args
 	 */
@@ -36,7 +36,7 @@ public class Scanner {
 		int returnVal = chooser.showOpenDialog(chooser);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = chooser.getSelectedFile();
-			File folderfile = new File(file.getName());
+			File folderfile = new File("Index of " + file.getName());
 			folderfile.mkdir();
 			scanFolder(file, folderfile + "/");
 
