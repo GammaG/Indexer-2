@@ -26,7 +26,8 @@ public class Scanner {
 	}
 
 	/**
-	 * Holt alle dateinnamen aus einem Ordner
+	 * Open dialog to choose the folder which should be scanned, creates the
+	 * root folder for index
 	 */
 	public void scanFolder() {
 
@@ -46,6 +47,9 @@ public class Scanner {
 
 	}
 
+	/*
+	 * Uses recusion to create folders in repository calls the saveit methode
+	 */
 	private void scanFolder(File file, String root) {
 
 		ArrayList<File> datalist = new ArrayList<File>();
@@ -71,7 +75,8 @@ public class Scanner {
 	}
 
 	/**
-	 * Speichert den Index in einer txt;
+	 * here the txt file and lower folder where created, uses Threads to make
+	 * sure folder exits while putting txt in it
 	 */
 	public void saveIt(final ArrayList<File> list, String root) {
 		final File folder = new File(root);
