@@ -11,7 +11,7 @@ import javax.swing.JFileChooser;
 /**
  * @author admin dataScanner
  */
-public class Scanner implements Runnable {
+public class Scanner {
 
 	/**
 	 * Main
@@ -36,8 +36,9 @@ public class Scanner implements Runnable {
 		int returnVal = chooser.showOpenDialog(chooser);
 		if (returnVal == JFileChooser.APPROVE_OPTION) {
 			File file = chooser.getSelectedFile();
-			file.mkdir();
-			scanFolder(file, file.getName() + "/");
+			File folderfile = new File(file.getName());
+			folderfile.mkdir();
+			scanFolder(file, folderfile + "/");
 
 		} else {
 			System.exit(0);
@@ -72,35 +73,53 @@ public class Scanner implements Runnable {
 	/**
 	 * Speichert den Index in einer txt;
 	 */
-	public void saveIt(ArrayList<File> list, String root) {
-		File folder = new File(root);
-		String[] txtname = root.split("[//]+");
-		BufferedWriter writer = null;
+	public void saveIt(final ArrayList<File> list, String root) {
+		final File folder = new File(root);
+		final String[] txtname = root.split("[//]+");
 
-		try {
-			Thread mkfolder = new Thread(this);
-
-			if (!folder.exists())
-				folder.mkdir();
-
-			if (list.isEmpty())
-				return;
-
-			writer = new BufferedWriter(new FileWriter(new File(
-					folder.getAbsolutePath() + "/"
-							+ txtname[txtname.length - 1] + ".txt")));
-
-			for (File f : list) {
-				writer.write(f.getName());
-				writer.newLine();
+		final Thread mkFolder = new Thread() {
+			@Override
+			public void run() {
+				if (!folder.exists())
+					folder.mkdir();
 			}
+		};
+		mkFolder.run();
+		Thread mktxt = new Thread() {
+			@Override
+			public void run() {
+				try {
 
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} finally {
-			if (writer != null) {
+					mkFolder.join();
 
+				} catch (InterruptedException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+
+				if (list.isEmpty())
+					return;
+
+				BufferedWriter writer = null;
+				try {
+					writer = new BufferedWriter(new FileWriter(new File(
+							folder.getAbsolutePath() + "/"
+									+ txtname[txtname.length - 1] + ".txt")));
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+				for (File f : list) {
+					try {
+						writer.write(f.getName());
+						writer.newLine();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+
+				}
 				try {
 					writer.flush();
 					writer.close();
@@ -111,13 +130,9 @@ public class Scanner implements Runnable {
 
 			}
 
-		}
+		};
+		mktxt.run();
 
 	}
 
-	@Override
-	public void run() {
-		// TODO Auto-generated method stub
-
-	}
 }
